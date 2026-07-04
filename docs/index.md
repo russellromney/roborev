@@ -92,7 +92,7 @@ Every commit gets reviewed. Issues surface in seconds, not hours. Open reviews s
 
 -   **Multi-Agent**
 
-    Works with Codex, Claude Code, Gemini, Copilot, OpenCode, Cursor, Droid, Kilo, Kiro, and Pi. Auto-detects installed agents.
+    Works with Codex, Claude Code, Gemini, Copilot, OpenCode, Cursor, Droid, Kilo, Kiro, Pi, and Kimi. Auto-detects installed agents.
 
 -   **Rich Markdown Display**
 

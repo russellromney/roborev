@@ -81,6 +81,10 @@ func (a *KimiAgent) CommandName() string {
 // buildArgs returns the argv for a Kimi review invocation.
 // The prompt is passed via a file reference (@path) because Kimi's -p flag
 // requires the prompt as an argument and does not read it from stdin.
+//
+// Kimi's CLI rejects combining --prompt (-p) with --yolo or --auto, so
+// non-interactive agentic mode is not supported. The Agentic field is
+// preserved for API consistency but does not change the emitted command line.
 func (a *KimiAgent) buildArgs(promptFile string) []string {
 	sessionID := sanitizedResumeSessionID(a.SessionID)
 	args := []string{"-p", "@" + promptFile, "--output-format", "stream-json"}
@@ -89,9 +93,6 @@ func (a *KimiAgent) buildArgs(promptFile string) []string {
 	}
 	if a.Model != "" {
 		args = append(args, "--model", a.Model)
-	}
-	if a.Agentic || AllowUnsafeAgents() {
-		args = append(args, "--yolo")
 	}
 	return args
 }
@@ -172,8 +173,10 @@ type kimiEvent struct {
 var errNoKimiJSON = errors.New("no valid kimi stream-json events parsed from output")
 
 // parseKimiJSON parses Kimi's stream-json output and extracts the final
-// assistant message content. Meta events (session resume hints) and tool
-// events are ignored.
+// assistant message content. Meta events (session resume hints) are ignored.
+// Tool events reset the accumulated result so only assistant text emitted
+// after the last tool call is retained, matching the behavior of other
+// agents that drop pre-tool narration.
 func parseKimiJSON(r io.Reader, sw *syncWriter) (string, error) {
 	var result string
 	var validEventsParsed bool
@@ -182,8 +185,14 @@ func parseKimiJSON(r io.Reader, sw *syncWriter) (string, error) {
 		var ev kimiEvent
 		if jsonErr := json.Unmarshal([]byte(line), &ev); jsonErr == nil && ev.Role != "" {
 			validEventsParsed = true
-			if ev.Role == "assistant" && ev.Content != "" {
-				result = stripTerminalControls(ev.Content)
+			switch ev.Role {
+			case "assistant":
+				if ev.Content != "" {
+					result = stripTerminalControls(ev.Content)
+				}
+			case "tool":
+				// Drop any assistant text that appeared before this tool call.
+				result = ""
 			}
 		}
 		return nil

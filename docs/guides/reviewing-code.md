@@ -261,6 +261,7 @@ Session reuse requires agent-side support for resuming conversations. The follow
 | OpenCode | `opencode run --session <session>` |
 | Kilo | `kilo run --session <session>` |
 | Pi | `pi --session <path>` |
+| Kimi | `kimi -S <session>` |
 
 Agents that do not support session reuse (Gemini, Copilot, Cursor, Kiro, Droid) ignore the setting and always start fresh sessions.
 

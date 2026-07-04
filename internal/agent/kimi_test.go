@@ -112,7 +112,7 @@ func TestKimiReviewSessionFlag(t *testing.T) {
 	assert.Contains(t, args, "ses_123")
 }
 
-func TestKimiReviewAgenticIncludesYolo(t *testing.T) {
+func TestKimiReviewAgenticOmitsYolo(t *testing.T) {
 	t.Parallel()
 	skipIfWindows(t)
 
@@ -126,7 +126,7 @@ func TestKimiReviewAgenticIncludesYolo(t *testing.T) {
 	require.NoError(t, err)
 
 	args := readMockArgs(t, mock.ArgsFile)
-	assert.Contains(t, args, "--yolo")
+	assert.NotContains(t, args, "--yolo")
 }
 
 func TestKimiReviewParsesJSONStream(t *testing.T) {

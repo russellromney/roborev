@@ -25,7 +25,7 @@ func TestKimiCommandLine(t *testing.T) {
 	assert.Equal(t, "kimi "+strings.Join(a.buildArgs("<prompt-file>"), " "), cl)
 	assert.Contains(t, cl, "--output-format stream-json")
 	assert.Contains(t, cl, "--model")
-	assert.Contains(t, cl, "--yolo")
+	assert.NotContains(t, cl, "--yolo")
 }
 
 func TestKimiBuildArgs(t *testing.T) {
@@ -46,10 +46,9 @@ func TestKimiBuildArgs(t *testing.T) {
 			},
 		},
 		{
-			name:      "agentic mode adds --yolo",
-			agentic:   true,
-			wantArgs:  []string{"--yolo"},
-			excludeArgs: []string{"--model"},
+			name:        "agentic mode is ignored; --yolo not emitted",
+			agentic:     true,
+			excludeArgs: []string{"--yolo", "--model"},
 		},
 		{
 			name:      "model flag included",
@@ -142,7 +141,7 @@ func TestKimiAgenticFlag(t *testing.T) {
 	assert.NotContains(t, a.CommandLine(), "--yolo")
 
 	agentic := a.WithAgentic(true).(*KimiAgent)
-	assert.Contains(t, agentic.CommandLine(), "--yolo")
+	assert.NotContains(t, agentic.CommandLine(), "--yolo")
 }
 
 func TestKimiSessionFlag(t *testing.T) {
@@ -228,6 +227,21 @@ not json at all
 	_, err := parseKimiJSON(strings.NewReader(lines), nil)
 	require.Error(t, err)
 	assert.ErrorIs(t, err, errNoKimiJSON)
+}
+
+func TestParseKimiJSON_ResetsAfterToolUse(t *testing.T) {
+	t.Parallel()
+
+	lines := strings.Join([]string{
+		unitMakeKimiEvent("assistant", "I will read the files first."),
+		`{"role":"tool","tool_call_id":"call_1","content":"file contents"}`,
+		unitMakeKimiEvent("assistant", "Final review finding."),
+	}, "\n") + "\n"
+
+	result, err := parseKimiJSON(strings.NewReader(lines), nil)
+	require.NoError(t, err)
+	assert.Equal(t, "Final review finding.", result)
+	assert.NotContains(t, result, "read the files")
 }
 
 func unitMakeKimiEvent(role, content string) string {

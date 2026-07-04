@@ -75,7 +75,7 @@ Before enabling the CI poller, you need:
 
    If you do provide a local checkout, it must use `origin` as its remote name (the default). The poller runs `git fetch origin` and `git fetch origin pull/<number>/head` to retrieve PR commits, including those from contributor forks.
 
-3. **At least one AI agent** installed. The poller auto-detects installed agents in this order: `codex`, `claude-code`, `gemini`, `copilot`, `opencode`, `cursor`, `kiro`, `kilo`, `droid`, `pi`. You can check what's available with:
+3. **At least one AI agent** installed. The poller auto-detects installed agents in this order: `codex`, `claude-code`, `gemini`, `copilot`, `opencode`, `cursor`, `kiro`, `kilo`, `droid`, `pi`, `kimi`. You can check what's available with:
    ```bash
    roborev check-agents             # smoke-test all installed agents
    roborev check-agents --agent codex  # test a specific agent

@@ -19,6 +19,7 @@ roborev supports multiple AI coding agents and auto-detects which ones are insta
 | Kilo | `kilo` | `npm install -g @kilocode/cli` |
 | Kiro | `kiro-cli` | See [kiro.dev](https://kiro.dev/) |
 | Pi | `pi` | `npm install -g @mariozechner/pi-coding-agent` |
+| Kimi | `kimi` | `curl -fsSL https://code.kimi.com/kimi-code/install.sh \| bash` ([MoonshotAI/kimi-code](https://github.com/MoonshotAI/kimi-code)) |
 
 ## Auto-Detection
 
@@ -34,6 +35,7 @@ roborev auto-detects installed agents and falls back in this order:
 8. Kilo
 9. Droid
 10. Pi
+11. Kimi
 
 The first available agent is used unless you specify one explicitly.
 
@@ -84,6 +86,7 @@ roborev refine --model claude-sonnet-4-20250514
 | Kilo | `provider/model` | `anthropic/claude-sonnet-4-20250514`, `openai/gpt-4.1` |
 | Kiro | Model name | (see Kiro docs) |
 | Pi | Model name | `claude-sonnet-4-20250514`, `gpt-4.1` |
+| Kimi | Kimi model alias | `kimi-code/kimi-for-coding` |
 
 ### Configuration
 
@@ -178,6 +181,12 @@ jsonschemaextension = "/opt/roborev/pi-json-schema/index.ts"
 
 See [Pi Classifier Options](/configuration/#pi-classifier-options).
 
+## Kimi
+
+The Kimi agent runs Kimi Code's non-interactive prompt mode (`kimi -p ... --output-format stream-json`). The prompt is passed via a temporary file reference to avoid command-line length limits.
+
+Kimi Code's prompt mode does not allow `--yolo` or `--auto`, so the Kimi adapter is currently **review-only**. `roborev review` works; `roborev fix`/`refine` will invoke Kimi but it cannot apply edits in this mode.
+
 ## Agentic Support
 
 Different agents have different levels of support for agentic mode (file edits and commands):
@@ -195,6 +204,7 @@ Different agents have different levels of support for agentic mode (file edits a
 | Kilo | Full (runs autonomously) |
 | Kiro | Full (uses `--trust-all-tools`) |
 | Pi | Full (tools execute without confirmation) |
+| Kimi | Review-only (`-p` prompt mode does not support `--yolo`/`--auto`) |
 
 See [Custom Tasks & Agentic Mode](/advanced/custom-tasks/) for details on review vs agentic modes.
 
