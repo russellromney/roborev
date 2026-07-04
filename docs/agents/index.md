@@ -185,7 +185,22 @@ See [Pi Classifier Options](/configuration/#pi-classifier-options).
 
 The Kimi agent runs Kimi Code's non-interactive prompt mode (`kimi -p ... --output-format stream-json`). The prompt is passed via a temporary file reference to avoid command-line length limits.
 
-Kimi Code's prompt mode does not allow `--yolo` or `--auto`, so the Kimi adapter is currently **review-only**. `roborev review` works; `roborev fix`/`refine` will invoke Kimi but it cannot apply edits in this mode.
+Kimi Code's prompt mode does not allow `--yolo` or `--auto`, so the built-in Kimi adapter is currently **review-only**. `roborev review` works; `roborev fix`/`refine` will invoke Kimi but it cannot apply edits in this mode.
+
+### Agentic mode via ACP
+
+For `fix`/`refine`/`run --agentic`, configure Kimi through the [Agent Client Protocol (ACP)](/advanced/acp/) instead:
+
+```toml
+# ~/.roborev/config.toml
+[acp]
+name = "kimi"
+command = "kimi"
+args = ["acp"]
+disable_mode_negotiation = true
+```
+
+Then use `--agent kimi` for agentic workflows. The ACP path supports read-write tool use; the built-in adapter remains review-only.
 
 ## Agentic Support
 
