@@ -535,7 +535,7 @@ Per-repo overrides take priority over the global `[ci]` config. Any field not se
 | `discord_webhook_url` | string | | Discord webhook URL for best-effort CI job failure notifications |
 | `batch_timeout` | string | `"15m"` | Maximum time to wait for panel members before posting available results. Set `"0"` to disable. |
 
-When `agents` is empty, the poller auto-detects the first available agent from: codex, claude-code, gemini, copilot, opencode, cursor, kiro, kilo, droid, pi.
+When `agents` is empty, the poller auto-detects the first available agent from: codex, claude-code, gemini, copilot, opencode, cursor, kiro, kilo, droid, pi, kimi.
 
 ### GitHub App Options
 
