@@ -63,6 +63,9 @@ REPORT.md
 .codex
 .antigravitycli/
 
+# Kimi Code CLI
+.omo/
+
 # docs Vercel artifacts
 .vercel
 .env*.local

@@ -232,6 +232,7 @@ type Config struct {
 	CursorCmd     string `toml:"cursor_cmd"`
 	PiCmd         string `toml:"pi_cmd"`
 	OpenCodeCmd   string `toml:"opencode_cmd"`
+	KimiCmd       string `toml:"kimi_cmd"`
 
 	// API keys (optional - agents use subscription auth by default)
 	AnthropicAPIKey string `toml:"anthropic_api_key" sensitive:"true"`
@@ -479,6 +480,7 @@ func DefaultConfig() *Config {
 		CursorCmd:          "agent",
 		PiCmd:              "pi",
 		OpenCodeCmd:        "opencode",
+		KimiCmd:            "kimi",
 		MouseEnabled:       true,
 		Cost: CostConfig{
 			Timeout: "10s",

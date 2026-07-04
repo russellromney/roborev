@@ -402,6 +402,7 @@ codex_cmd = "codex-nightly"
 gemini_cmd = "gemini"                 # Pin legacy Gemini CLI instead of auto-preferring agy
 cursor_cmd = "/usr/local/bin/agent"
 opencode_cmd = "/usr/local/bin/opencode-wrapper"
+kimi_cmd = "~/bin/kimi"
 pi_cmd = "~/bin/pi"
 ```
 
@@ -412,6 +413,7 @@ pi_cmd = "~/bin/pi"
 | `gemini_cmd` | auto (`agy`, then `gemini`) |
 | `cursor_cmd` | `agent` |
 | `opencode_cmd` | `opencode` |
+| `kimi_cmd` | `kimi` |
 | `pi_cmd` | `pi` |
 
 These overrides affect both agent execution and availability detection. Without them, roborev only checks for the default command name when deciding whether an agent is installed. Gemini is the exception: when `gemini_cmd` is unset, roborev auto-prefers `agy` before the legacy `gemini` command; set `gemini_cmd = "gemini"` to pin the legacy CLI, for example when using explicit Gemini model overrides.
@@ -569,6 +571,7 @@ column_borders = true             # Show separators between TUI columns
 | `gemini_cmd` | string | unset | Custom path or name for the Gemini-compatible binary; unset auto-prefers `agy` then `gemini` | Yes |
 | `cursor_cmd` | string | `agent` | Custom path or name for the Cursor binary | Yes |
 | `opencode_cmd` | string | `opencode` | Custom path or name for the OpenCode binary | Yes |
+| `kimi_cmd` | string | `kimi` | Custom path or name for the Kimi Code CLI binary | Yes |
 | `pi_cmd` | string | `pi` | Custom path or name for the Pi binary | Yes |
 | `exclude_patterns` | array | `[]` | Filenames or glob patterns to exclude from review diffs globally | Yes |
 | `default_max_prompt_size` | int | 200000 | Default maximum prompt size in bytes for review prompts | Yes |

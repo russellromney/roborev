@@ -144,6 +144,23 @@ var allAgentSpecs = []agentSpec{
 		},
 	},
 	{
+		Name:           "kimi",
+		DefaultCommand: "kimi",
+		FallbackRank:   11,
+		CommandOverride: func(cfg *config.Config) string {
+			return cfg.KimiCmd
+		},
+		CloneWithCommand: func(a Agent, command string) Agent {
+			agent, ok := a.(*KimiAgent)
+			if !ok {
+				return a
+			}
+			clone := *agent
+			clone.Command = command
+			return &clone
+		},
+	},
+	{
 		Name:           defaultACPName,
 		DefaultCommand: defaultACPCommand,
 	},

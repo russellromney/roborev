@@ -319,6 +319,7 @@ hook, so a configured integration never goes dark unnoticed.
 | Gemini | `curl -fsSL https://antigravity.google/cli/install.sh \| bash` (preferred Antigravity CLI) or `npm install -g @google/gemini-cli` |
 | Copilot | `npm install -g @github/copilot` |
 | OpenCode | `npm install -g opencode-ai@latest` ([anomalyco/opencode](https://github.com/anomalyco/opencode)) |
+| Kimi | `curl -fsSL https://code.kimi.com/kimi-code/install.sh \| bash` ([MoonshotAI/kimi-code](https://github.com/MoonshotAI/kimi-code)) |
 | Cursor | [cursor.com](https://www.cursor.com/) |
 | Kiro | [kiro.dev](https://kiro.dev/) |
 | Kilo | `npm install -g @kilocode/cli` |

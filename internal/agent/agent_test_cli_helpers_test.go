@@ -81,21 +81,23 @@ func writeTempCommand(t *testing.T, script string) string {
 
 // MockCLIOpts controls the behavior of a mock agent CLI script.
 type MockCLIOpts struct {
-	HelpOutput   string
-	ExitCode     int
-	CaptureArgs  bool
-	CaptureStdin bool
-	CaptureEnv   bool
-	StdoutLines  []string
-	StderrLines  []string
+	HelpOutput        string
+	ExitCode          int
+	CaptureArgs       bool
+	CaptureStdin      bool
+	CaptureEnv        bool
+	CapturePromptFile bool
+	StdoutLines       []string
+	StderrLines       []string
 }
 
 // MockCLIResult holds paths to the mock command and any capture files.
 type MockCLIResult struct {
-	CmdPath   string
-	ArgsFile  string
-	StdinFile string
-	EnvFile   string
+	CmdPath    string
+	ArgsFile   string
+	StdinFile  string
+	EnvFile    string
+	PromptFile string
 }
 
 // readMockArgs reads the captured arguments from a mock CLI's ArgsFile and splits them into a slice.
@@ -172,6 +174,24 @@ func mockAgentCLI(t *testing.T, opts MockCLIOpts) *MockCLIResult {
 	if opts.CaptureEnv {
 		result.EnvFile = filepath.Join(tmpDir, "env.txt")
 		fmt.Fprintf(&script, "env > %q\n", result.EnvFile)
+	}
+
+	if opts.CapturePromptFile {
+		result.PromptFile = filepath.Join(tmpDir, "prompt.txt")
+		promptCaptureScript := `i=1
+while [ $i -lt $# ]; do
+	eval "arg=\$$i"
+	next=$((i+1))
+	if [ "$arg" = "-p" ]; then
+		eval "ref=\$$next"
+		path=$(printf '%%s' "$ref" | sed 's/^@//')
+		cat "$path" > %q
+		break
+	fi
+	i=$((i+1))
+done
+`
+		fmt.Fprintf(&script, promptCaptureScript, result.PromptFile)
 	}
 
 	if len(opts.StdoutLines) > 0 {
