@@ -219,6 +219,17 @@ func TestParseKimiJSON_ReadError(t *testing.T) {
 	assert.Contains(t, result, "partial")
 }
 
+func TestParseKimiJSON_NoValidEvents(t *testing.T) {
+	t.Parallel()
+
+	lines := `{"unknown":"event"}
+not json at all
+`
+	_, err := parseKimiJSON(strings.NewReader(lines), nil)
+	require.Error(t, err)
+	assert.ErrorIs(t, err, errNoKimiJSON)
+}
+
 func unitMakeKimiEvent(role, content string) string {
 	ev := map[string]any{"role": role, "content": content}
 	b, err := json.Marshal(ev)

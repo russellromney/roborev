@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -149,6 +150,9 @@ func (a *KimiAgent) Review(
 	}
 
 	if runResult.ParseErr != nil {
+		if errors.Is(runResult.ParseErr, errNoKimiJSON) {
+			return "", fmt.Errorf("kimi CLI did not emit valid stream-json events; upgrade kimi or check CLI compatibility: %w", errNoKimiJSON)
+		}
 		return runResult.Result, runResult.ParseErr
 	}
 
@@ -164,15 +168,20 @@ type kimiEvent struct {
 	Content string `json:"content"`
 }
 
+// errNoKimiJSON indicates no valid kimi stream-json events were parsed.
+var errNoKimiJSON = errors.New("no valid kimi stream-json events parsed from output")
+
 // parseKimiJSON parses Kimi's stream-json output and extracts the final
 // assistant message content. Meta events (session resume hints) and tool
 // events are ignored.
 func parseKimiJSON(r io.Reader, sw *syncWriter) (string, error) {
 	var result string
+	var validEventsParsed bool
 
 	err := scanStreamJSONLines(r, sw, func(line string) error {
 		var ev kimiEvent
-		if jsonErr := json.Unmarshal([]byte(line), &ev); jsonErr == nil {
+		if jsonErr := json.Unmarshal([]byte(line), &ev); jsonErr == nil && ev.Role != "" {
+			validEventsParsed = true
 			if ev.Role == "assistant" && ev.Content != "" {
 				result = stripTerminalControls(ev.Content)
 			}
@@ -181,6 +190,10 @@ func parseKimiJSON(r io.Reader, sw *syncWriter) (string, error) {
 	})
 	if err != nil {
 		return result, err
+	}
+
+	if !validEventsParsed {
+		return "", errNoKimiJSON
 	}
 
 	return result, nil
