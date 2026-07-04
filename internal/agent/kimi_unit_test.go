@@ -9,6 +9,99 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestKimiName(t *testing.T) {
+	t.Parallel()
+
+	a := NewKimiAgent("")
+	assert.Equal(t, "kimi", a.Name())
+	assert.Equal(t, "kimi", a.CommandName())
+}
+
+func TestKimiCommandLine(t *testing.T) {
+	t.Parallel()
+
+	a := NewKimiAgent("kimi").WithModel("kimi-k2.7-code").WithAgentic(true).(*KimiAgent)
+	cl := a.CommandLine()
+	assert.Equal(t, "kimi "+strings.Join(a.buildArgs("<prompt-file>"), " "), cl)
+	assert.Contains(t, cl, "--output-format stream-json")
+	assert.Contains(t, cl, "--model")
+	assert.Contains(t, cl, "--yolo")
+}
+
+func TestKimiBuildArgs(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name        string
+		model       string
+		agentic     bool
+		sessionID   string
+		wantArgs    []string
+		excludeArgs []string
+	}{
+		{
+			name:     "review mode defaults",
+			wantArgs: []string{"-p", "@/tmp/prompt.txt", "--output-format", "stream-json"},
+			excludeArgs: []string{
+				"--model", "--yolo", "-S",
+			},
+		},
+		{
+			name:      "agentic mode adds --yolo",
+			agentic:   true,
+			wantArgs:  []string{"--yolo"},
+			excludeArgs: []string{"--model"},
+		},
+		{
+			name:      "model flag included",
+			model:     "kimi-k2.7-code",
+			wantArgs:  []string{"--model", "kimi-k2.7-code"},
+			excludeArgs: []string{"--yolo"},
+		},
+		{
+			name:      "session flag included",
+			sessionID: "ses_123",
+			wantArgs:  []string{"-S", "ses_123"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			a := NewKimiAgent("kimi")
+			a.Model = tt.model
+			a.Agentic = tt.agentic
+			a.SessionID = tt.sessionID
+
+			args := a.buildArgs("/tmp/prompt.txt")
+			for _, want := range tt.wantArgs {
+				assert.Contains(t, args, want)
+			}
+			for _, exclude := range tt.excludeArgs {
+				assert.NotContains(t, args, exclude)
+			}
+		})
+	}
+}
+
+func TestKimiRejectInvalidResumeSession(t *testing.T) {
+	t.Parallel()
+
+	a := NewKimiAgent("kimi").WithSessionID("-bad-session").(*KimiAgent)
+	args := a.buildArgs("/tmp/prompt.txt")
+	assert.NotContains(t, args, "-bad-session")
+	assert.NotContains(t, args, "-S")
+}
+
+func TestKimiWithChaining(t *testing.T) {
+	t.Parallel()
+
+	a := NewKimiAgent("kimi")
+	b := a.WithModel("m1").WithReasoning(ReasoningThorough).WithAgentic(true).(*KimiAgent)
+	assert.Equal(t, "m1", b.Model)
+	assert.Equal(t, ReasoningThorough, b.Reasoning)
+	assert.True(t, b.Agentic)
+	assert.Equal(t, "kimi", b.Command)
+}
+
 func TestKimiModelFlag(t *testing.T) {
 	t.Parallel()
 	tests := []struct {

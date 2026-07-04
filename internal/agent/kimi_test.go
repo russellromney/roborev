@@ -94,6 +94,24 @@ func TestKimiReviewArgsContainOutputFormat(t *testing.T) {
 	assertContains(t, strings.TrimSpace(args), "--output-format stream-json")
 }
 
+func TestKimiReviewSessionFlag(t *testing.T) {
+	t.Parallel()
+	skipIfWindows(t)
+
+	mock := mockAgentCLI(t, MockCLIOpts{
+		CaptureArgs: true,
+		StdoutLines: []string{makeKimiEvent("assistant", "ok")},
+	})
+
+	a := NewKimiAgent(mock.CmdPath).WithSessionID("ses_123").(*KimiAgent)
+	_, err := a.Review(context.Background(), t.TempDir(), "HEAD", "prompt", nil)
+	require.NoError(t, err)
+
+	args := readMockArgs(t, mock.ArgsFile)
+	assert.Contains(t, args, "-S")
+	assert.Contains(t, args, "ses_123")
+}
+
 func TestKimiReviewAgenticIncludesYolo(t *testing.T) {
 	t.Parallel()
 	skipIfWindows(t)
